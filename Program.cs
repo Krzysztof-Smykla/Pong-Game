@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.IO;
 
 class Program
 {
@@ -17,9 +18,32 @@ class Program
         private int ballDirX = 1, ballDirY = 1;
         private int score = 0;
         private int speed = 50; // ms delay
+        private bool isRunning = true; // flag variable
+        private readonly string folder;
+        private readonly string filePath;
+        private string playerName = "Unknown";
         #endregion
 
+        // Constructor method
+        public PongGame()
+        {
+            string documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            folder = Path.Combine(documents, "Studia\\Informatyka Społeczna AGH\\Drugi Stopień\\Semestr 1\\Programowanie w C#\\Projekt\\Pong Game Console");
+            filePath = Path.Combine(folder, "score.txt");
+
+            Directory.CreateDirectory(folder); // Ensure it exists
+        }
+
         #region Initialization
+        private void AskForPlayerName()
+        {
+            Console.Write("Enter your player name: ");
+            playerName = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(playerName))
+                playerName = "Anonymous"; // fallback
+        }
+
         private void ChooseDifficulty()
         {
             Console.Clear();
@@ -53,6 +77,11 @@ class Program
                 Console.SetCursorPosition(width - 1, y);
                 Console.Write('|');
             }
+            // set random start direction
+            Random rand = new Random();
+            ballDirX = rand.Next(0, 2) == 0 ? 1 : -1;
+            ballDirY = rand.Next(0, 2) == 0 ? 1 : -1;
+
         }
         #endregion
 
@@ -68,20 +97,8 @@ class Program
                 else if ((key == ConsoleKey.S || key == ConsoleKey.DownArrow) && paddleY < height - paddleHeight - 1)
                     paddleY++;
                 else if (key == ConsoleKey.Escape)
-                    Environment.Exit(0);
+                    isRunning = false; // Gracefully stop the game
             }
-            /*
-            if (Console.KeyAvailable)
-            {
-                ConsoleKey key = Console.ReadKey(true).Key;
-                if ((key == ConsoleKey.W || key == ConsoleKey.UpArrow) && paddleY > 1)
-                    paddleY--;
-                else if ((key == ConsoleKey.S || key == ConsoleKey.DownArrow) && paddleY < height - paddleHeight - 1)
-                    paddleY++;
-                else if (key == ConsoleKey.Escape)
-                    Environment.Exit(0);
-            }
-            */
         }
 
         private void Logic()
@@ -100,22 +117,20 @@ class Program
             {
                 ballDirX *= -1;
                 score++;
+
+                int paddleCenter = paddleY + paddleHeight / 2;
+
+                if (ballY < paddleCenter)
+                    ballDirY = -1;  // bounce up
+                else if (ballY > paddleCenter)
+                    ballDirY = 1;  // bounce down
+                else
+                    ballDirY = (new Random().Next(0, 2) == 0) ? -1 : 1; // Randomize slightly
             }
-            /*
-            // Bounce off paddle
-            if (ballX == 3 && ballY == paddleY)
-            {
-                ballDirX *= -1;
-                score++;
-            }
-            */
-            // Missed ball (Game Over)
 
             if (ballX <= 0)
             {
-                Console.Clear();
-                Console.WriteLine($"Game Over! Final score: {score}");
-                Environment.Exit(0);
+                isRunning = false;
             }
 
             // Right wall bounce
@@ -167,7 +182,7 @@ class Program
         {
             Initialize();
 
-            while (true)
+            while (isRunning)
             {
                 // 1️ Store old positions before updating
                 prevBallX = ballX;
@@ -184,21 +199,37 @@ class Program
 
                 // 4️ Control speed
                 Thread.Sleep(speed);
-
-                /*
-                if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape)
-                    break;
-                */
             }
 
             Console.Clear();
             Console.WriteLine($"Game Over! Final score: {score}");
+
+            SaveScore(score);   
         }
 
         public void Start()
         {
+            AskForPlayerName();
             ChooseDifficulty();
             Run();
+        }
+        #endregion
+
+        #region Scoreboard
+        public void SaveScore(int score)
+        {
+            string entry = $"{DateTime.Now:G} | Player: {playerName} | Score: {score}";
+
+            if (!File.Exists(filePath))
+            {
+                File.WriteAllText(filePath, entry);
+            }
+            else
+            {
+                File.AppendAllText(filePath, Environment.NewLine + entry);
+            }
+
+            Console.WriteLine($"Score saved to file at:\n{filePath}");
         }
         #endregion
     }
