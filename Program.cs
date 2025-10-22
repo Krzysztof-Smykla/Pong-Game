@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.IO;
 
 class Program
 {
@@ -65,7 +62,7 @@ class Program
             Console.Clear();
             Console.CursorVisible = false;
             // find the central position
-            paddleY = height/2; 
+            paddleY = height / 2;
             ballX = width / 2;
             ballY = height / 2;
 
@@ -163,9 +160,9 @@ class Program
                     Console.Write(" ");
                 }
             }
-            
+
             // ── Draw paddle ─
-            for (int i  = 0; i < paddleHeight; i++)
+            for (int i = 0; i < paddleHeight; i++)
             {
                 Console.SetCursorPosition(2, paddleY + i);
                 Console.Write("█");
@@ -191,7 +188,7 @@ class Program
 
                 // 2️ Input handled continuously
                 Input();
-                
+
 
                 // 3️ Movement and logic 
                 Logic();
@@ -204,7 +201,8 @@ class Program
             Console.Clear();
             Console.WriteLine($"Game Over! Final score: {score}");
 
-            SaveScore(score);   
+            SaveScore(score);
+            FormatScoreboard();
         }
 
         public void Start()
@@ -229,7 +227,42 @@ class Program
                 File.AppendAllText(filePath, Environment.NewLine + entry);
             }
 
-            Console.WriteLine($"Score saved to file at:\n{filePath}");
+            Console.WriteLine($"SCOREBOARD:\n {File.ReadAllText(filePath)}");
+            Console.WriteLine($"Score saved to file at:\n {filePath}");
+        }
+        public void FormatScoreboard()
+        {
+            string filePath2 = Path.Combine(folder, "score_csv.txt");
+
+            if (!File.Exists(filePath))
+            {
+                Console.WriteLine("No score file found to format.");
+                return;
+            }
+
+            string[] lines = File.ReadAllLines(filePath);
+            List<string> csvLines = new List<string>();
+
+            // Add a CSV header row
+            csvLines.Add("DateTime,Player,Score");
+
+            foreach (string line in lines)
+            {
+                // Example line: "10/22/2025 21:05:43 | Player: Alex | Score: 7"
+                string[] parts = line.Split('|', StringSplitOptions.TrimEntries);
+
+                if (parts.Length == 3)
+                {
+                    string date = parts[0];
+                    string player = parts[1].Replace("Player:", "").Trim();
+                    string score = parts[2].Replace("Score:", "").Trim();
+
+                    csvLines.Add($"{date},{player},{score}");
+                }
+            }
+
+            File.WriteAllLines(filePath2, csvLines);
+            Console.WriteLine($"CSV scoreboard saved at:\n{filePath2}");
         }
         #endregion
     }
