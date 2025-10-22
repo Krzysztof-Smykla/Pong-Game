@@ -12,7 +12,7 @@ class Program
         private int paddleHeight = 3;
         private int ballX, ballY;
         private int prevBallX, prevBallY;
-        private int ballDirX = 1, ballDirY = 1;
+        private int ballDirX = 1, ballDirY = 1;  
         private int score = 0;
         private int speed = 50; // ms delay
         private bool isRunning = true; // flag variable
@@ -112,6 +112,7 @@ class Program
             // Paddle collision
             if (ballX == 3 && ballY >= paddleY && ballY < paddleY + paddleHeight)
             {
+                Console.Beep();
                 ballDirX *= -1;
                 score++;
 
@@ -140,7 +141,7 @@ class Program
             // ── Erase previous ball ─
             Console.SetCursorPosition(prevBallX, prevBallY);
             Console.Write(' ');
-
+            
             // ── Erase previous paddle ─
             for (int i = 0; i < paddleHeight; i++)
             {
