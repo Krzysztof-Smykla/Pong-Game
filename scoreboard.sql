@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS Scoreboard (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    GameDate TIMESTAMP,
+    PlayerName TEXT,
+    Score INTEGER
+);

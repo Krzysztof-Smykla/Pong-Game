@@ -228,8 +228,8 @@ class Program
                 File.AppendAllText(filePath, Environment.NewLine + entry);
             }
 
-            Console.WriteLine($"SCOREBOARD:\n {File.ReadAllText(filePath)}");
-            Console.WriteLine($"Score saved to file at:\n {filePath}");
+            Console.WriteLine($"SCOREBOARD:\n{File.ReadAllText(filePath)}");
+            Console.WriteLine($"Score saved to file at:\n{filePath}");
         }
         public void FormatScoreboard()
         {
