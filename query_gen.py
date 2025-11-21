@@ -32,5 +32,7 @@ con.commit()
 res = cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
 print(res.fetchall())
 
+#TODO: Insert data from CSV to the database table
+
 # Close the connection
 con.close()

@@ -1,9 +1,15 @@
-﻿using System;
-
+﻿using Microsoft.Data.Sqlite;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Runtime.ExceptionServices;
+using System.Text;
 class Program
 {
+    
     class PongGame
-    {
+    {  
         #region Fields
         private int width = 40;
         private int height = 20;
@@ -25,6 +31,7 @@ class Program
         public PongGame()
         {
             string documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            //TODO: How to create absolute paths in C#
             folder = Path.Combine(documents, "Studia\\Informatyka Społeczna AGH\\Drugi Stopień\\Semestr 1\\Programowanie w C#\\Projekt\\Pong Game Console");
             filePath = Path.Combine(folder, "score.txt");
 
@@ -263,15 +270,133 @@ class Program
             }
 
             File.WriteAllLines(filePath2, csvLines);
-            Console.WriteLine($"CSV scoreboard saved at:\n{filePath2}");
+            Console.WriteLine($"\nCSV scoreboard saved at:\n{filePath2}");
         }
         #endregion
+
+    }
+    public static void LoadDatabase(string filePath2)
+    {
+        // 1. Validate CSV file
+        if (!File.Exists(filePath2))
+        {
+            Console.WriteLine($"CSV file not found: {filePath2}");
+            return;
+        }
+
+        // 2. Read all lines (skip header if present)
+        var lines = File.ReadAllLines(filePath2);
+        if (lines.Length == 0)
+        {
+            Console.WriteLine("CSV file is empty.");
+            return;
+        }
+
+        int startIndex = lines[0].StartsWith("DateTime") ? 1 : 0;
+
+        // 3. Open SQLite connection
+        using var conn = new SqliteConnection("Data Source=PongGameDB.db");
+        conn.Open();
+        using var tran = conn.BeginTransaction();
+
+        foreach (var line in lines[startIndex..])
+        {
+            if (string.IsNullOrWhiteSpace(line)) continue;
+
+            var parts = line.Split(',');
+            if (parts.Length < 3) continue;
+
+            // Parse DateTime properly
+            if (!DateTime.TryParseExact(
+                    parts[0].Trim(),
+                    "yyyy-MM-dd h:mm:ss tt",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out DateTime gameDateTime))
+            {
+                Console.WriteLine($"Skipping invalid date: {parts[0]}");
+                continue;
+            }
+
+            string player = parts[1].Trim();
+            if (!int.TryParse(parts[2].Trim(), out int score))
+            {
+                Console.WriteLine($"Skipping invalid score: {parts[2]}");
+                continue;
+            }
+
+            // Insert into database
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = @"
+            INSERT INTO Scoreboard (GameDate, PlayerName, Score)
+            VALUES ($GameDate, $PlayerName, $Score);";
+
+            // Store GameDate in ISO 8601 format
+            cmd.Parameters.AddWithValue("$GameDate", gameDateTime.ToString("yyyy-MM-dd HH:mm:ss"));
+            cmd.Parameters.AddWithValue("$PlayerName", player);
+            cmd.Parameters.AddWithValue("$Score", score);
+
+            cmd.ExecuteNonQuery();
+        }
+
+        tran.Commit();
+        conn.Close();
+
+        Console.WriteLine("CSV data successfully loaded into the database.");
+    }
+    public static void ReadDatabase()
+    {
+        //TODO: Read data from tables in the PongGameDB.db
     }
 
     static void Main()
     {
+        #region Database connection
+        string dbPath = Path.Combine("PongGameDB.db");
+        string sqlFile = Path.Combine("scoreboard.sql");
+
+        using var conn = new SqliteConnection($"Data Source={dbPath}");
+        conn.Open();
+
+        if (!File.Exists(sqlFile))
+        {
+            Console.WriteLine($"SQL file not found: {sqlFile}");
+            return;
+        }
+
+        string sqlScript = File.ReadAllText(sqlFile);
+        
+        // 3. Execute SQL script
+        using (var cmd = conn.CreateCommand())
+        {
+            cmd.CommandText = sqlScript;
+            cmd.ExecuteNonQuery();
+        }
+
+        // 4. Verify table creation
+        using (var verifyCmd = conn.CreateCommand())
+        {
+            verifyCmd.CommandText =
+                "SELECT name FROM sqlite_master WHERE type='table';";
+
+            using var reader = verifyCmd.ExecuteReader();
+            Console.WriteLine("Tables in database:");
+
+            while (reader.Read())
+            {
+                Console.WriteLine("- " + reader.GetString(0));
+            }
+        }
+
+        conn.Close();
+        Console.WriteLine("Done.");
+        #endregion
+
+        LoadDatabase("score_csv.txt");
         Console.CursorVisible = false;
         PongGame game = new PongGame();
         game.Start();
+
+
     }
 }
