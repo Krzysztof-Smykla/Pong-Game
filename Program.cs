@@ -3,8 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Net;
 using System.Runtime.ExceptionServices;
 using System.Text;
+using static System.Formats.Asn1.AsnWriter;
 class Program
 {
     
@@ -344,9 +346,31 @@ class Program
 
         Console.WriteLine("CSV data successfully loaded into the database.");
     }
-    public static void ReadDatabase()
+    public static void ReadDatabase(SqliteConnection c, int topScores)
     {
         //TODO: Read data from tables in the PongGameDB.db
+        using var command = c.CreateCommand();
+        command.CommandText = @"
+            SELECT GameDate, PlayerName, Score
+            FROM scoreboard
+            ORDER BY Score DESC
+            LIMIT $top;
+            ";
+        command.Parameters.AddWithValue("$top", topScores);
+        using var reader = command.ExecuteReader();
+
+
+        Console.WriteLine($"Top Scores: ");
+        int rank = 1;
+        while (reader.Read())
+        {
+            string gameDate = reader.GetString(0); // GameDate stored as string
+            string playerName = reader.GetString(1);
+            int score = reader.GetInt32(2);
+
+            Console.WriteLine($"{rank}. {playerName} - score {score} ({gameDate})");
+            rank++;
+        }
     }
 
     static void Main()
@@ -388,14 +412,25 @@ class Program
             }
         }
 
-        conn.Close();
-        Console.WriteLine("Done.");
+        conn.Close(); 
+        Console.WriteLine("Connection Verified.");
+
         #endregion
 
-        LoadDatabase("score_csv.txt");
-        Console.CursorVisible = false;
+        /*Console.CursorVisible = false;
         PongGame game = new PongGame();
-        game.Start();
+        game.Start();*/
+
+        using var conn2 = new SqliteConnection("Data Source=PongGameDB.db");
+        conn.Open();
+
+        // Load CSV data
+        LoadDatabase("score_csv.txt");
+
+        // Read top 10 scores
+        ReadDatabase(conn, 10);
+
+        conn.Close();
 
 
     }
