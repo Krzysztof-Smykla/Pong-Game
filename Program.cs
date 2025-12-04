@@ -213,6 +213,7 @@ class Program
 
             SaveScore(score);
             FormatScoreboard();
+            LoadDatabase("score_csv.txt");
         }
 
         public void Start()
@@ -224,6 +225,8 @@ class Program
         #endregion
 
         #region Scoreboard
+        // TODO: Reformat SaveScore method to save the socoreboard directly into csv format,
+        // removing redundant FormatScoreboard method."
         public void SaveScore(int score)
         {
             string entry = $"{DateTime.Now:G} | Player: {playerName} | Score: {score}";
@@ -417,11 +420,15 @@ class Program
 
         #endregion
 
-        /*Console.CursorVisible = false;
+        #region GameStart
+        // Start the game
+        Console.CursorVisible = false;
         PongGame game = new PongGame();
-        game.Start();*/
+        game.Start();
 
-        using var conn2 = new SqliteConnection("Data Source=PongGameDB.db");
+
+        // Loading score data into database and reading top 10 scorers 
+        using var conn2 = new SqliteConnection($"Data Source={dbPath}");
         conn.Open();
 
         // Load CSV data
@@ -431,7 +438,7 @@ class Program
         ReadDatabase(conn, 10);
 
         conn.Close();
-
+        #endregion
 
     }
 }
