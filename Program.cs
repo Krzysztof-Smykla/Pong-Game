@@ -213,6 +213,7 @@ class Program
 
             SaveScore(score);
             FormatScoreboard();
+            // TODO: Load new scoreboard into database. LoadDatabase(filePath2)
         }
 
         public void Start()
