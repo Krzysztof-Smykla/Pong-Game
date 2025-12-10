@@ -1,27 +1,5 @@
-2025-10-20 12:05:39 PM | Player: Krzysztof | Score: 1
-2025-10-20 12:06:28 PM | Player: Mark | Score: 1
-2025-10-20 12:24:51 PM | Player: Krzysztof | Score: 3
-2025-10-20 12:27:11 PM | Player: jOe_MaMaa | Score: 0
-2025-10-20 1:50:43 PM | Player: Joshuah | Score: 3
-2025-10-20 1:52:22 PM | Player: Krzysztof | Score: 6
-2025-10-22 10:16:59 AM | Player: Mike | Score: 1
-2025-10-22 10:21:20 AM | Player: John | Score: 7
-2025-10-22 10:24:08 AM | Player: Sam | Score: 1
-2025-10-22 10:26:16 AM | Player: Nina | Score: 1
-2025-10-22 10:29:04 AM | Player: Tom | Score: 0
-2025-10-22 10:30:49 AM | Player: Joe | Score: 4
-2025-10-22 10:53:52 AM | Player: Krzysztof | Score: 1
-2025-10-22 10:55:19 AM | Player: John | Score: 0
-2025-10-22 10:56:29 AM | Player: Anonymous | Score: 0
-2025-10-22 10:56:43 AM | Player: fd | Score: 0
-2025-10-22 10:57:19 AM | Player: Joh | Score: 1
-2025-10-22 10:57:54 AM | Player: Krzysztof | Score: 1
-2025-10-22 2:52:20 PM | Player: Sasha | Score: 1
-2025-10-22 2:53:32 PM | Player: Chris | Score: 0
-2025-10-22 2:54:14 PM | Player: Chris | Score: 3
-2025-10-22 2:55:00 PM | Player: Chris | Score: 0
-2025-10-22 2:55:25 PM | Player: Chris | Score: 1
-2025-10-23 11:55:58 AM | Player: Krzysztof | Score: 2
-2025-10-23 11:57:17 AM | Player: Jack Sparrow | Score: 2
-2025-11-13 8:17:42 PM | Player: Deep Thought | Score: 3
-2025-11-21 3:05:08 PM | Player: Franek | Score: 0
+
+2025-12-10 8:41:36 PM | Player: Alice | Score: 0
+2025-12-10 8:43:26 PM | Player: Chris | Score: 8
+2025-12-10 8:43:47 PM | Player: Bob | Score: 1
+2025-12-10 8:44:39 PM | Player: Jill | Score: 5
